@@ -1,0 +1,4 @@
+WeatherHub dashboard hero, sidebar, and city thumbnails
+Source: user-provided WeatherHub dashboard reference screenshot.
+The hero, sidebar, and city thumbnails are cropped local copies used to match
+the supplied design.

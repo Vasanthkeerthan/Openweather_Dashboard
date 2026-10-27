@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#07172e">
+    <title>WeatherHub | Your weather, at a glance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar" aria-label="Main navigation">
+            <a class="brand" href="#overview" aria-label="WeatherHub home">
+                <span class="brand-mark"><i class="bi bi-cloud-sun-fill" aria-hidden="true"></i></span>
+                <span class="brand-copy"><strong>Weather<span>Hub</span></strong><small>Explore Weather Worldwide</small></span>
+            </a>
+            <button class="mobile-nav-toggle" id="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Open navigation">
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
+            <nav class="side-nav" id="main-nav">
+                <a class="side-link active" href="#overview"><i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Home</span></a>
+                <a class="side-link" href="#current-weather"><i class="bi bi-cloud-fill" aria-hidden="true"></i><span>Current Weather</span></a>
+                <a class="side-link" href="#forecast"><i class="bi bi-calendar-week-fill" aria-hidden="true"></i><span>5-Day Forecast</span></a>
+                <a class="side-link" href="#favorites"><i class="bi bi-heart-fill" aria-hidden="true"></i><span>Favourite Cities</span></a>
+                <a class="side-link" href="#about"><i class="bi bi-info-circle-fill" aria-hidden="true"></i><span>About</span></a>
+            </nav>
+            <div class="sidebar-art" aria-hidden="true">
+                <img class="sidebar-reference-art" src="{{ url_for('static', filename='images/weatherhub-reference-sidebar.png') }}" alt="">
+            </div>
+        </aside>
+
+        <main class="main-content" id="overview">
+            <header class="topbar">
+                <form id="weather-search" class="search-form">
+                    <span class="search-pin"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i></span>
+                    <label class="search-field">
+                        <span class="visually-hidden">City</span>
+                        <input id="city-input" name="city" type="text" maxlength="120" placeholder="Search any city..." value="Vijayawada" autocomplete="address-level2" required>
+                    </label>
+                    <label class="country-field">
+                        <span class="visually-hidden">Country code</span>
+                        <select id="country-input" name="country" aria-label="Country code">
+                            <option value="">Any country</option>
+                            <option value="IN" selected>IN</option>
+                            <option value="US">US</option>
+                            <option value="GB">GB</option>
+                            <option value="CA">CA</option>
+                            <option value="AU">AU</option>
+                            <option value="JP">JP</option>
+                            <option value="FR">FR</option>
+                            <option value="DE">DE</option>
+                        </select>
+                    </label>
+                    <button class="btn search-button" id="search-button" type="submit">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <span class="button-label">Search</span>
+                        <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                    </button>
+                </form>
+                <div class="header-tools">
+                    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light mode" title="Toggle color theme">
+                        <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                        <span class="theme-divider"></span>
+                        <i class="bi bi-moon-fill" aria-hidden="true"></i>
+                    </button>
+                    <div class="header-clock"><span id="header-date">Local weather</span><strong id="header-time">—</strong></div>
+                </div>
+            </header>
+
+            <div id="notifications" class="notification-stack" aria-live="polite" aria-atomic="true"></div>
+
+            <div class="dashboard-grid">
+                <div class="primary-column">
+                    <section class="current-card panel" id="current-weather" aria-label="Current weather">
+                        <div class="current-scene" aria-hidden="true">
+                            <span class="scene-moon"></span>
+                        </div>
+                        <div class="current-card-top">
+                            <span class="live-pill"><span class="live-dot"></span> Live Weather</span>
+                        </div>
+                        <div class="hero-location">
+                            <div class="hero-heading">
+                                <h1 id="current-city">—</h1>
+                                <span class="hero-country-code" id="current-country"></span>
+                            </div>
+                            <div class="hero-country"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i><span id="current-location">Location unavailable</span></div>
+                            <p class="current-date mb-0" id="current-date">Search for a city to see local weather</p>
+                            <p class="current-time mb-0" id="current-time"></p>
+                        </div>
+                        <div class="hero-weather">
+                            <div class="temperature-value"><span id="current-temp">—</span><span class="degree">°C</span></div>
+                            <div class="hero-description" id="current-description">Search a city for current conditions</div>
+                            <div class="hero-feels"><i class="bi bi-cloud-sun" aria-hidden="true"></i> Feels like <strong id="feels-like">—</strong></div>
+                        </div>
+                        <img class="weather-icon current-icon d-none" id="current-icon" alt="">
+                    </section>
+
+                    <section class="stats-grid" aria-label="Weather conditions">
+                        <article class="stat-card stat-feels">
+                            <div class="stat-icon"><i class="bi bi-thermometer-half" aria-hidden="true"></i></div>
+                            <span class="stat-label">Feels Like</span>
+                            <strong class="stat-value" id="feels-like-card">—</strong>
+                        </article>
+                        <article class="stat-card stat-humidity">
+                            <div class="stat-icon"><i class="bi bi-droplet" aria-hidden="true"></i></div>
+                            <span class="stat-label">Humidity</span>
+                            <strong class="stat-value" id="humidity">—</strong>
+                        </article>
+                        <article class="stat-card stat-wind">
+                            <div class="stat-icon"><i class="bi bi-wind" aria-hidden="true"></i></div>
+                            <span class="stat-label">Wind Speed</span>
+                            <strong class="stat-value" id="wind-speed">—</strong>
+                        </article>
+                        <article class="stat-card stat-pressure">
+                            <div class="stat-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></div>
+                            <span class="stat-label">Pressure</span>
+                            <strong class="stat-value" id="pressure">—</strong>
+                        </article>
+                        <article class="stat-card stat-visibility">
+                            <div class="stat-icon"><i class="bi bi-eye" aria-hidden="true"></i></div>
+                            <span class="stat-label">Visibility</span>
+                            <strong class="stat-value" id="visibility">—</strong>
+                        </article>
+                    </section>
+
+                    <section class="forecast-panel panel" id="forecast">
+                        <div class="section-heading">
+                            <div class="forecast-title"><i class="bi bi-calendar-week" aria-hidden="true"></i><h2>5-Day Weather Forecast</h2></div>
+                            <a class="forecast-action-link" id="view-detailed-forecast" href="#forecast">View Detailed Forecast <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                        </div>
+                        <div id="forecast-list" class="forecast-grid" aria-live="polite">
+                            <div class="forecast-placeholder">Search for a city to load its forecast.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="right-column" aria-label="Favorite cities">
+                    <section class="favorites-panel panel" id="favorites">
+                        <div class="section-heading">
+                            <div class="favorites-title"><i class="bi bi-heart-fill" aria-hidden="true"></i><h2>Favourite Cities</h2></div>
+                            <button class="btn add-favorite-button" id="add-favorite-button" type="button" data-bs-toggle="modal" data-bs-target="#favorite-modal">
+                                <i class="bi bi-plus-lg" aria-hidden="true"></i> Add City
+                            </button>
+                        </div>
+                        <div id="favorites-list" class="favorites-grid" aria-live="polite">
+                            <div class="favorites-placeholder"><span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Loading your favorite cities…</div>
+                        </div>
+                        <button class="view-all-favorites" id="view-all-favorites" type="button" hidden aria-expanded="false">
+                            View All Favourite Cities <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </section>
+                    <section class="world-panel panel" id="about" aria-label="Weather around the world">
+                        <div class="section-heading world-section-heading">
+                            <div class="about-heading"><i class="bi bi-globe2" aria-hidden="true"></i><h2>Weather around the World</h2></div>
+                            <a class="world-map-link" id="world-map-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
+                                View on Map
+                            </a>
+                        </div>
+                        <div class="world-city-list" id="world-city-list" aria-live="polite">
+                            <p class="world-loading"><span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Loading world weather…</p>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+            <footer class="page-footer"><span>WeatherHub</span> · Live weather, wherever you are</footer>
+        </main>
+    </div>
+
+    <div class="modal fade" id="favorite-modal" tabindex="-1" aria-labelledby="favorite-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content favorite-modal">
+                <div class="modal-header">
+                    <div>
+                        <span class="section-kicker">MAKE IT YOURS</span>
+                        <h2 class="modal-title" id="favorite-modal-title">Add a favorite city</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="favorite-form">
+                    <div class="modal-body">
+                        <input type="hidden" id="favorite-id">
+                        <label class="form-label" for="favorite-city">City</label>
+                        <input class="form-control favorite-input" id="favorite-city" name="city" type="text" maxlength="120" required>
+                        <label class="form-label mt-3" for="favorite-country">Country code</label>
+                        <input class="form-control favorite-input text-uppercase" id="favorite-country" name="country" type="text" maxlength="2" placeholder="IN" required>
+                        <label class="form-label mt-3" for="favorite-nickname">Nickname <span class="optional-label">OPTIONAL</span></label>
+                        <input class="form-control favorite-input" id="favorite-nickname" name="nickname" type="text" maxlength="80" placeholder="e.g. Home, Work">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn cancel-button" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn search-button" id="favorite-submit">
+                            <span class="button-label">Save city</span>
+                            <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>
